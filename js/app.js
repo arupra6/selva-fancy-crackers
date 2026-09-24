@@ -77,13 +77,57 @@
   }
   function formatCurrency(value) {
     const n = Number(value || 0);
-    return '₹' + n.toLocaleString('en-IN', { minimumFractionDigits: n % 1 ? 2 : 0, maximumFractionDigits: 2 });
+    return 'â‚¹' + n.toLocaleString('en-IN', { minimumFractionDigits: n % 1 ? 2 : 0, maximumFractionDigits: 2 });
   }
   function saveCart() { storageSet(CART_STORAGE_KEY, JSON.stringify(cart)); }
   function categorySlug(value='') { return value.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,''); }
-  function hasCatalogue() { return typeof window.products !== 'undefined' || typeof products !== 'undefined'; }
-  function productArray() { return typeof products !== 'undefined' ? products : []; }
-  function categoryArray() { return typeof categoryOrder !== 'undefined' ? categoryOrder : []; }
+  function productArray() {
+
+    if (Array.isArray(window.products)) {
+      return window.products;
+    }
+
+    try {
+      if (Array.isArray(products)) {
+        return products;
+      }
+    } catch (_) {}
+
+    return [];
+  }
+
+  function categoryArray() {
+
+    if (
+      Array.isArray(window.categoryOrder) &&
+      window.categoryOrder.length
+    ) {
+      return window.categoryOrder;
+    }
+
+    try {
+      if (
+        Array.isArray(categoryOrder) &&
+        categoryOrder.length
+      ) {
+        return categoryOrder;
+      }
+    } catch (_) {}
+
+    // Safety fallback:
+    // derive categories directly from product data.
+    return [
+      ...new Set(
+        productArray()
+          .map(product => product.category)
+          .filter(Boolean)
+      )
+    ];
+  }
+
+  function hasCatalogue() {
+    return productArray().length > 0;
+  }
 
   function initNavigation() {
     const toggle = document.getElementById('menuToggle');
@@ -116,10 +160,10 @@
       <div class="product-meta"><span>${escapeHtml(product.category)}</span><span>Unit: ${escapeHtml(product.unit)}</span></div>
       <div class="price-line">
         <div class="price-block"><small>${product.netRate ? 'Net Price' : 'Rate'}</small><strong>${price}</strong></div>
-        <div class="tile-total"><small>Total</small><strong>${isSelectable(product) ? formatCurrency(total) : '—'}</strong></div>
+        <div class="tile-total"><small>Total</small><strong>${isSelectable(product) ? formatCurrency(total) : 'â€”'}</strong></div>
       </div>
       ${isSelectable(product) ? `<div class="tile-qty-row"><div class="qty-control">
-        <button type="button" data-action="minus" data-id="${product.id}" aria-label="Decrease quantity">−</button>
+        <button type="button" data-action="minus" data-id="${product.id}" aria-label="Decrease quantity">âˆ’</button>
         <input class="qty-input" data-action="qty" data-id="${product.id}" type="number" min="0" step="1" value="${qty}" aria-label="Quantity for ${escapeHtml(product.name)}">
         <button type="button" data-action="plus" data-id="${product.id}" aria-label="Increase quantity">+</button>
       </div></div>` : `<div class="unavailable-note">${escapeHtml(product.priceText || 'Please confirm price')}</div>`}
@@ -138,11 +182,11 @@
       </div>
       <div class="list-price"><small>${product.netRate ? 'Net Price' : 'Rate'}</small><strong>${price}</strong></div>
       <div class="list-qty">${isSelectable(product) ? `<div class="qty-control">
-        <button type="button" data-action="minus" data-id="${product.id}">−</button>
+        <button type="button" data-action="minus" data-id="${product.id}">âˆ’</button>
         <input class="qty-input" data-action="qty" data-id="${product.id}" type="number" min="0" step="1" value="${qty}">
         <button type="button" data-action="plus" data-id="${product.id}">+</button>
       </div>` : `<span class="unavailable-note">${escapeHtml(product.priceText || 'Confirm price')}</span>`}</div>
-      <div class="list-total"><small>Total</small><strong>${isSelectable(product) ? formatCurrency(total) : '—'}</strong></div>
+      <div class="list-total"><small>Total</small><strong>${isSelectable(product) ? formatCurrency(total) : 'â€”'}</strong></div>
     </div>`;
   }
 
@@ -242,7 +286,7 @@
         selected.textContent = 'No products selected yet.';
       } else {
         selected.className = 'selected-list';
-        selected.innerHTML = t.items.map(i => `<div class="summary-line"><span>${i.id}. ${escapeHtml(i.name)} × ${i.qty}</span><strong>${formatCurrency(i.total)}</strong></div>`).join('');
+        selected.innerHTML = t.items.map(i => `<div class="summary-line"><span>${i.id}. ${escapeHtml(i.name)} Ã— ${i.qty}</span><strong>${formatCurrency(i.total)}</strong></div>`).join('');
       }
     }
     setText('itemCount', t.qty);
@@ -307,7 +351,7 @@
   function renderEstimateModal() {
     const t = totals(); const wrap = document.getElementById('estimateModalItems');
     if (!wrap) return;
-    wrap.innerHTML = t.items.map(i => `<div class="estimate-modal-line"><div><strong>${i.id}. ${escapeHtml(i.name)}</strong><small>${escapeHtml(i.unit)} • Qty ${i.qty} • ${formatCurrency(i.price)} each</small></div><div class="line-amount">${formatCurrency(i.total)}<span>${i.netRate ? 'Net Rate' : '2026 Rate'}</span></div></div>`).join('') || '<div class="empty-state">No products selected.</div>';
+    wrap.innerHTML = t.items.map(i => `<div class="estimate-modal-line"><div><strong>${i.id}. ${escapeHtml(i.name)}</strong><small>${escapeHtml(i.unit)} â€¢ Qty ${i.qty} â€¢ ${formatCurrency(i.price)} each</small></div><div class="line-amount">${formatCurrency(i.total)}<span>${i.netRate ? 'Net Rate' : '2026 Rate'}</span></div></div>`).join('') || '<div class="empty-state">No products selected.</div>';
     setText('modalQty', t.qty); setText('modalTotal', formatCurrency(t.amount));
   }
 
