@@ -3,15 +3,22 @@ const searchInput = document.getElementById("productSearch");
 const categoryFilter = document.getElementById("categoryFilter");
 
 function loadCategories() {
-    const categories = [...new Set(products.map(product => product.category))];
+
+    const categories = [
+        ...new Set(products.map(product => product.category))
+    ];
 
     categories.forEach(category => {
+
         const option = document.createElement("option");
+
         option.value = category;
         option.textContent = category;
+
         categoryFilter.appendChild(option);
     });
 }
+
 
 function displayProducts(productArray) {
 
@@ -22,40 +29,91 @@ function displayProducts(productArray) {
         const card = document.createElement("div");
         card.className = "product-card";
 
+        const priceDisplay =
+            product.price !== null
+                ? `₹${product.price}`
+                : product.priceText || "Price on request";
+
+        const netRateDisplay =
+            product.netRate
+                ? `<div class="net-rate">NET RATE</div>`
+                : "";
+
+        const unavailableDisplay =
+            !product.available
+                ? `<div class="availability">Please confirm price</div>`
+                : "";
+
         card.innerHTML = `
-            <h3>${product.name}</h3>
-            <div class="tamil">${product.tamilName}</div>
-            <div class="price">₹${product.price}</div>
-            <div>${product.unit}</div>
+
+            ${netRateDisplay}
+
+            <h3>
+                ${product.id}. ${product.name}
+            </h3>
+
+            <div class="tamil">
+                ${product.tamilName}
+            </div>
+
+            <div class="price">
+                ${priceDisplay}
+            </div>
+
+            <div>
+                ${product.unit}
+            </div>
+
+            ${unavailableDisplay}
         `;
 
         productList.appendChild(card);
     });
 }
 
+
 function filterProducts() {
 
-    const searchText = searchInput.value.toLowerCase();
-    const selectedCategory = categoryFilter.value;
+    const searchText =
+        searchInput.value.trim().toLowerCase();
 
-    const filteredProducts = products.filter(product => {
+    const selectedCategory =
+        categoryFilter.value;
 
-        const matchesSearch =
-            product.name.toLowerCase().includes(searchText) ||
-            product.tamilName.includes(searchInput.value);
+    const filteredProducts =
+        products.filter(product => {
 
-        const matchesCategory =
-            selectedCategory === "all" ||
-            product.category === selectedCategory;
+            const englishName =
+                product.name.toLowerCase();
 
-        return matchesSearch && matchesCategory;
-    });
+            const tamilName =
+                product.tamilName || "";
+
+            const matchesSearch =
+                englishName.includes(searchText) ||
+                tamilName.includes(searchInput.value.trim());
+
+            const matchesCategory =
+                selectedCategory === "all" ||
+                product.category === selectedCategory;
+
+            return matchesSearch && matchesCategory;
+        });
 
     displayProducts(filteredProducts);
 }
 
-searchInput.addEventListener("input", filterProducts);
-categoryFilter.addEventListener("change", filterProducts);
+
+searchInput.addEventListener(
+    "input",
+    filterProducts
+);
+
+categoryFilter.addEventListener(
+    "change",
+    filterProducts
+);
+
 
 loadCategories();
 displayProducts(products);
