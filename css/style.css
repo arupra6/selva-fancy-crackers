@@ -201,7 +201,230 @@ body {
     .product-grid {
         grid-template-columns: 1fr;
     }
+/* =========================================
+   SELVA CRACKERS - PRODUCT QUANTITY & CART
+========================================= */
 
+body {
+    padding-bottom: 95px;
+}
+
+.product-top-line {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.product-number {
+    background: #f7e5ee;
+    color: #8f0d4f;
+    font-size: 12px;
+    font-weight: bold;
+    padding: 5px 9px;
+    border-radius: 20px;
+}
+
+.net-rate {
+    background: #8f0d4f;
+    color: #ffffff;
+    font-size: 11px;
+    font-weight: bold;
+    padding: 5px 8px;
+    border-radius: 4px;
+}
+
+.product-price-row {
+    display: flex;
+    align-items: baseline;
+    gap: 5px;
+    margin-top: 12px;
+}
+
+.product-price-row .price {
+    margin-top: 0;
+}
+
+.unit {
+    color: #666;
+    font-size: 14px;
+}
+
+.quantity-row {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 12px;
+    margin-top: 18px;
+}
+
+.qty-btn {
+    width: 38px;
+    height: 38px;
+    border: none;
+    border-radius: 7px;
+    background: #8f0d4f;
+    color: white;
+    font-size: 22px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.qty-btn:hover {
+    background: #650737;
+}
+
+.qty-value {
+    min-width: 32px;
+    text-align: center;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.product-amount {
+    margin-top: 10px;
+    min-height: 20px;
+    color: #8f0d4f;
+    font-weight: bold;
+    font-size: 15px;
+}
+
+.price-confirm {
+    display: inline-block;
+    margin-top: 18px;
+    padding: 8px 10px;
+    border-radius: 5px;
+    background: #fff1d6;
+    color: #8a5500;
+    font-size: 13px;
+    font-weight: bold;
+}
+
+
+/* =========================================
+   STICKY CART
+========================================= */
+
+.cart-bar {
+    position: fixed;
+    left: 50%;
+    bottom: 15px;
+    transform: translateX(-50%);
+
+    width: calc(100% - 30px);
+    max-width: 1000px;
+
+    background: #ffffff;
+
+    border: 1px solid #ead6df;
+    border-radius: 12px;
+
+    box-shadow:
+        0 8px 30px rgba(0, 0, 0, 0.18);
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    padding: 13px 16px;
+
+    z-index: 9999;
+
+    transition: 0.2s ease;
+}
+
+.cart-bar.cart-active {
+    border-color: #8f0d4f;
+}
+
+.cart-summary {
+    display: flex;
+    align-items: center;
+    gap: 25px;
+}
+
+#cartItemCount {
+    font-size: 22px;
+    font-weight: bold;
+    color: #8f0d4f;
+}
+
+.cart-label {
+    color: #555;
+    font-size: 14px;
+    margin-left: 4px;
+}
+
+.cart-total {
+    font-size: 23px;
+    font-weight: bold;
+    color: #8f0d4f;
+}
+
+.estimate-btn {
+    border: none;
+    background: #8f0d4f;
+    color: #ffffff;
+
+    padding: 12px 22px;
+
+    border-radius: 7px;
+
+    font-size: 15px;
+    font-weight: bold;
+
+    cursor: pointer;
+}
+
+.estimate-btn:hover {
+    background: #650737;
+}
+
+
+/* =========================================
+   MOBILE
+========================================= */
+
+@media (max-width: 600px) {
+
+    body {
+        padding-bottom: 115px;
+    }
+
+    .cart-bar {
+        bottom: 8px;
+        width: calc(100% - 16px);
+        padding: 10px;
+    }
+
+    .cart-summary {
+        gap: 10px;
+    }
+
+    #cartItemCount {
+        font-size: 18px;
+    }
+
+    .cart-label {
+        display: block;
+        margin-left: 0;
+        font-size: 11px;
+    }
+
+    .cart-total {
+        font-size: 18px;
+    }
+
+    .estimate-btn {
+        padding: 11px 13px;
+        font-size: 13px;
+    }
+
+    .qty-btn {
+        width: 40px;
+        height: 40px;
+    }
+}
     .product-toolbar {
         flex-direction: column;
     }
