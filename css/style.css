@@ -24,7 +24,6 @@ img{max-width:100%}
 .site-header{position:sticky;top:0;z-index:1500;background:#fff;border-bottom:1px solid var(--soft-line);box-shadow:0 3px 14px rgba(49,5,5,.05)}
 .header-inner{min-height:78px;display:flex;align-items:center;justify-content:space-between;gap:24px}
 .brand{display:flex;align-items:center;gap:12px;text-decoration:none;min-width:235px}
-.brand-seal{width:50px;height:50px;border-radius:50%;display:grid;place-items:center;background:var(--wine-600);color:var(--gold-500);border:3px solid var(--gold-500);font-weight:900;font-size:18px;box-shadow:0 4px 12px rgba(139,17,17,.14)}
 .brand-copy{display:flex;flex-direction:column}
 .brand-copy strong{font-size:23px;color:var(--wine-600);letter-spacing:.2px}
 .brand-copy small{color:var(--muted);font-size:12px;margin-top:1px}
@@ -279,13 +278,15 @@ img{max-width:100%}
 .enquiry-final-card .btn-primary{background:var(--gold-500);color:var(--wine-800);border-color:var(--gold-500);margin-top:12px}
 .download-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:9px}
 .download-grid .btn{min-height:38px;padding:0 8px;font-size:9px}
-.reset-button{width:100%;margin-top:9px;border:1px solid rgba(255,255,255,.35);background:transparent;color:#fff;border-radius:7px;min-height:38px;font-weight:800;font-size:10px}
 .browser-note{display:block;color:#d8c8c0;font-size:9px;margin-top:10px;line-height:1.45}
 
 /* sticky mobile cart + estimate modal */
 .mobile-cart-bar{position:fixed;left:50%;bottom:10px;transform:translateX(-50%);width:min(900px,calc(100% - 24px));z-index:3000;background:var(--wine-800);color:#fff;border:2px solid var(--gold-500);border-radius:12px;box-shadow:0 15px 40px rgba(0,0,0,.25);padding:10px 12px;display:flex;align-items:center;justify-content:space-between;gap:14px}
 .mobile-cart-bar span{font-weight:800;font-size:13px;color:var(--gold-500)}
 .mobile-cart-bar button{border:0;background:var(--gold-500);color:var(--wine-800);border-radius:7px;min-height:38px;padding:0 15px;font-size:11px;font-weight:900}
+.mobile-cart-actions{display:flex;align-items:center;gap:8px;flex:0 0 auto}
+.mobile-cart-bar .mobile-reset-btn{background:transparent;color:#fff;border:1px solid rgba(255,255,255,.55);padding-inline:13px}
+.mobile-cart-bar .mobile-reset-btn:hover{background:rgba(255,255,255,.12);border-color:#fff}
 .modal{position:fixed;inset:0;background:rgba(24,5,5,.64);backdrop-filter:blur(3px);display:grid;place-items:center;padding:18px;z-index:5000;opacity:0;visibility:hidden;transition:.2s ease}
 .modal.open{opacity:1;visibility:visible}
 .modal-dialog{width:min(700px,100%);max-height:90vh;overflow:auto;background:#fff;border-radius:15px;box-shadow:var(--shadow-strong);padding:24px;position:relative}
@@ -335,7 +336,7 @@ img{max-width:100%}
 }
 @media(max-width:600px){
   .container{width:min(94%,680px)}.safety-ribbon-inner{align-items:flex-start}.safety-ribbon a{font-size:10px}.header-inner{min-height:68px}.site-nav{top:69px}
-  .brand{min-width:0}.brand-seal{width:42px;height:42px;font-size:15px}.brand-copy strong{font-size:18px}.brand-copy small{font-size:9px}
+  .brand{min-width:0}.brand-copy strong{font-size:18px}.brand-copy small{font-size:9px}
   .offer-strip-inner{padding:8px 0;flex-wrap:wrap}.offer-strip-copy{order:3;width:100%;font-size:10px}.home-hero{padding:45px 0}.hero-copy h1{font-size:38px;letter-spacing:-1px}.hero-copy>p{font-size:15px}
   .hero-actions{flex-direction:column}.hero-actions .btn{width:100%}.hero-points{flex-direction:column;gap:6px}.hero-panel{padding:25px}.hero-year{font-size:58px}
   .trust-grid{grid-template-columns:1fr}.trust-item{border-right:0;border-bottom:1px solid var(--soft-line);padding:14px 2px}
@@ -345,14 +346,13 @@ img{max-width:100%}
   .catalogue-section{padding-bottom:45px}.view-toggle{height:43px}.view-toggle button{flex:1}.product-scroll{padding:9px}.product-tile-grid{gap:8px}.product-tile{padding:13px}.product-tile h3{min-height:auto}.product-tamil{min-height:auto}
   .product-list-row{grid-template-columns:1fr 90px;gap:8px}.list-main{grid-column:1/-1}.list-qty{grid-column:1}.list-total{grid-column:2;align-self:center;text-align:right}.list-price{display:none}
   .field-grid{grid-template-columns:1fr}.download-grid{grid-template-columns:1fr}.footer-grid{grid-template-columns:1fr}.footer-bottom-inner{flex-direction:column;justify-content:center;gap:2px;text-align:center;padding:9px 0}
-  .mobile-cart-bar{bottom:7px;width:calc(100% - 14px);padding:8px 9px}.mobile-cart-bar span{font-size:11px}.mobile-cart-bar button{min-height:36px;padding-inline:10px;font-size:10px}
+  .mobile-cart-bar{bottom:7px;width:calc(100% - 14px);padding:8px 9px;gap:8px}.mobile-cart-bar span{font-size:10px;line-height:1.25;min-width:0;flex:1}.mobile-cart-actions{gap:5px}.mobile-cart-bar button{min-height:36px;padding-inline:9px;font-size:10px}.mobile-cart-bar .mobile-reset-btn{padding-inline:8px}
   .modal{padding:8px;align-items:end}.modal-dialog{max-height:92vh;border-radius:14px 14px 0 0;padding:18px}.modal-actions{display:grid;grid-template-columns:1fr 1fr}.modal-actions .btn{padding-inline:8px;font-size:10px}
 }
 
 /* Ramdev-parity confidence strip */
 .confidence-strip{background:#fff;border-top:1px solid var(--soft-line);border-bottom:1px solid var(--soft-line);padding:13px 0}
 .confidence-items{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:10px 22px;color:var(--wine-800);font-size:12px;font-weight:900}
-.footer-map-link{color:var(--gold-200)!important;font-weight:800}
 @media(max-width:600px){.confidence-items{justify-content:flex-start;gap:8px 14px;font-size:10px}}
 
 
@@ -376,3 +376,42 @@ img{max-width:100%}
   .discount-metrics{grid-template-columns:repeat(2,1fr)}
   .modal-totals-four{grid-template-columns:1fr 1fr}
 }
+
+
+/* === Selva official logo + visual map card (2026-09-25) === */
+.brand-logo{width:58px;height:58px;object-fit:contain;flex:0 0 58px;filter:drop-shadow(0 4px 8px rgba(49,5,5,.16))}
+.hero-logo-wrap{margin:0 0 14px;display:flex;align-items:center}
+.hero-brand-logo{width:170px;height:auto;display:block;object-fit:contain;filter:drop-shadow(0 12px 24px rgba(49,5,5,.18))}
+.footer-brand-column{display:flex;flex-direction:column;align-items:flex-start}
+.footer-logo{width:92px;height:92px;object-fit:contain;margin:-12px 0 5px;filter:drop-shadow(0 8px 18px rgba(0,0,0,.28))}
+.official-card-logo{display:block;width:112px;height:112px;object-fit:contain;margin:-10px 0 8px;filter:drop-shadow(0 8px 18px rgba(95,7,7,.16))}
+.modal-brand-logo{display:block;width:72px;height:72px;object-fit:contain;margin:-6px 0 3px}
+.map-visual-link,.shop-map-preview{position:relative;text-decoration:none;overflow:hidden;border-radius:12px;border:1px solid #d8c98f;background:#f6edcf;box-shadow:0 6px 18px rgba(49,5,5,.10);transition:transform .16s ease,box-shadow .16s ease}
+.map-visual-link:hover,.shop-map-preview:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(49,5,5,.16)}
+.map-visual-link-footer{display:flex!important;align-items:center!important;gap:10px;margin-top:10px!important;padding:7px!important;color:inherit!important}
+.map-preview{position:relative;display:block;width:92px;height:64px;flex:0 0 92px;overflow:hidden;border-radius:8px;background:linear-gradient(145deg,#f5e9bd,#e8f0d6 53%,#f8e1bf)}
+.shop-map-preview{display:grid;grid-template-columns:minmax(180px,1.35fr) 1fr;min-height:190px;margin-top:15px;color:var(--ink)}
+.shop-map-preview.compact{grid-template-columns:150px 1fr;min-height:118px;margin-top:17px}
+.shop-map-art{position:relative;overflow:hidden;display:block;min-height:190px;background:linear-gradient(145deg,#f5e9bd,#e8f0d6 53%,#f8e1bf)}
+.shop-map-preview.compact .shop-map-art{min-height:118px}
+.map-block{position:absolute;background:rgba(255,255,255,.72);border:1px solid rgba(183,165,112,.3);border-radius:5px;transform:rotate(-4deg)}
+.block-a{left:8%;top:10%;width:30%;height:28%}.block-b{right:7%;top:13%;width:30%;height:23%;transform:rotate(7deg)}.block-c{left:14%;bottom:8%;width:34%;height:25%;transform:rotate(5deg)}
+.map-road{position:absolute;display:block;background:#fff;border:2px solid #d6b35b;box-shadow:0 0 0 2px rgba(255,255,255,.45);border-radius:999px;z-index:2}
+.road-a{width:125%;height:10px;left:-12%;top:48%;transform:rotate(-13deg)}.road-b{width:10px;height:135%;left:55%;top:-18%;transform:rotate(19deg)}.road-c{width:80%;height:8px;left:17%;bottom:17%;transform:rotate(11deg)}
+.map-pin-mark{position:absolute;left:58%;top:46%;width:25px;height:25px;transform:translate(-50%,-50%);z-index:5;border-radius:50% 50% 50% 0;background:var(--wine-600);border:3px solid #fff;box-shadow:0 5px 12px rgba(95,7,7,.28);color:transparent;rotate:-45deg}
+.map-pin-mark:after{content:"";position:absolute;width:7px;height:7px;border-radius:50%;background:var(--gold-500);left:6px;top:6px}
+.map-preview-copy{display:flex;flex-direction:column;min-width:0}
+.map-preview-copy strong{color:var(--gold-200);font-size:11px}.map-preview-copy small{color:#d6c5bd;font-size:9px;line-height:1.35}
+.shop-map-caption{display:flex;flex-direction:column;justify-content:center;padding:18px;background:#fff}
+.shop-map-caption strong{color:var(--wine-800);font-size:18px}.shop-map-caption small{color:var(--muted);font-size:12px;margin-top:4px}.shop-map-caption em{font-style:normal;font-weight:900;color:var(--green);font-size:11px;margin-top:12px}
+.visual-map-card{justify-content:flex-start}
+.mobile-reset-btn{white-space:nowrap}
+@media(max-width:850px){.hero-brand-logo{width:145px}.official-card-logo{width:96px;height:96px}.shop-map-preview{grid-template-columns:1fr}.shop-map-art{min-height:165px}.shop-map-preview.compact{grid-template-columns:130px 1fr}}
+@media(max-width:600px){.brand-logo{width:48px;height:48px;flex-basis:48px}.hero-brand-logo{width:132px}.footer-logo{width:78px;height:78px}.official-card-logo{width:88px;height:88px}.modal-brand-logo{width:60px;height:60px}.shop-map-preview,.shop-map-preview.compact{grid-template-columns:1fr}.shop-map-preview.compact .shop-map-art{min-height:145px}.map-preview{width:78px;height:58px;flex-basis:78px}.mobile-cart-actions{display:flex;gap:5px}.mobile-cart-bar button{padding-inline:9px}.mobile-reset-btn{font-size:9px!important}}
+
+
+/* Product image slot: defaults to Selva placeholder; per-product image can replace it later */
+.product-image-shell{position:relative;margin:10px 0 8px;height:138px;border:1px solid #ead7a5;border-radius:10px;overflow:hidden;background:linear-gradient(135deg,#fff7df,#fffdf7);display:grid;place-items:center}
+.product-image{display:block;width:100%;height:100%;object-fit:contain;padding:10px}
+.product-image-badge{position:absolute;right:7px;bottom:7px;background:rgba(49,5,5,.82);color:#ffeaa0;border:1px solid rgba(247,201,72,.55);border-radius:999px;padding:3px 7px;font-size:8px;font-weight:900;letter-spacing:.25px}
+@media(max-width:600px){.product-image-shell{height:128px}.product-image{padding:8px}}

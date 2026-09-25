@@ -7,9 +7,9 @@
   const OFFICIAL_WHATSAPP_NUMBER = '919842149415';
   const MINIMUM_ENQUIRY_VALUE = 3000;
   // Global promotional discount for standard-price items only.
-  // Keep at 0 until the business confirms a campaign percentage.
-  // Net Rate items are intentionally excluded from this discount.
-  const SITE_DISCOUNT_PERCENTAGE = 0;
+  // Confirmed Deepavali promotional discount for standard-price items only.
+  // Net Rate items are intentionally excluded and always retain their listed net price.
+  const SITE_DISCOUNT_PERCENTAGE = 40;
 
   const tamilNaduDistricts = [
     'Ariyalur','Chengalpattu','Chennai','Coimbatore','Cuddalore','Dharmapuri','Dindigul','Erode',
@@ -83,6 +83,10 @@
     const n = Number(value || 0);
     return '₹' + n.toLocaleString('en-IN', { minimumFractionDigits: n % 1 ? 2 : 0, maximumFractionDigits: 2 });
   }
+  function roundMoney(value) {
+    const n = Number(value || 0);
+    return Math.round((n + Number.EPSILON) * 100) / 100;
+  }
   function discountPercentFor(product) {
     if (!product || product.netRate) return 0;
     const pct = Number(SITE_DISCOUNT_PERCENTAGE || 0);
@@ -92,11 +96,11 @@
     if (!isSelectable(product)) return 0;
     const base = Number(product.price);
     const pct = discountPercentFor(product);
-    return base * (1 - pct / 100);
+    return roundMoney(base * (1 - pct / 100));
   }
   function discountAmountFor(product, qty=1) {
     if (!isSelectable(product)) return 0;
-    return Number(product.price) * Math.max(0, Number(qty || 0)) - discountedUnitPrice(product) * Math.max(0, Number(qty || 0));
+    return roundMoney(Number(product.price) * Math.max(0, Number(qty || 0)) - discountedUnitPrice(product) * Math.max(0, Number(qty || 0)));
   }
   function saveCart() { storageSet(CART_STORAGE_KEY, JSON.stringify(cart)); }
   function categorySlug(value='') { return value.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,''); }
@@ -129,6 +133,11 @@
   function isSelectable(product) { return !!(product && product.available && product.price !== null && Number.isFinite(Number(product.price))); }
   function getQty(id) { return Math.max(0, Number(cart[id] || 0)); }
 
+  function productImageUrl(product) {
+    const candidate = product && typeof product.image === 'string' ? product.image.trim() : '';
+    return candidate || 'images/product-placeholder.webp';
+  }
+
   function renderTileProduct(product) {
     const qty = getQty(product.id);
     const pct = discountPercentFor(product);
@@ -141,6 +150,10 @@
       <div class="tile-topline">
         <span class="serial-chip">S.No ${product.id}</span>
         <span class="tag ${product.netRate ? 'tag-net' : 'tag-discount'}">${product.netRate ? 'Net Rate' : `${pct}% Discount`}</span>
+      </div>
+      <div class="product-image-shell">
+        <img class="product-image" src="${escapeHtml(productImageUrl(product))}" alt="${escapeHtml(product.name)}" loading="lazy" decoding="async" onerror="this.onerror=null;this.src='images/product-placeholder.webp';">
+        <span class="product-image-badge">Product Image</span>
       </div>
       <h3>${escapeHtml(product.name)}</h3>
       <div class="product-tamil">${escapeHtml(product.tamilName || '')}</div>
@@ -260,21 +273,25 @@
       const baseUnitPrice = Number(p.price);
       const discountPercent = discountPercentFor(p);
       const unitPrice = discountedUnitPrice(p);
-      const subtotal = q * baseUnitPrice;
-      const discountAmount = subtotal - q * unitPrice;
-      const total = q * unitPrice;
+      const subtotal = roundMoney(q * baseUnitPrice);
+      const discountAmount = roundMoney(subtotal - q * unitPrice);
+      const total = roundMoney(q * unitPrice);
       return { ...p, qty:q, baseUnitPrice, discountPercent, unitPrice, subtotal, discountAmount, total };
     }).filter(Boolean);
   }
   function totals() {
     const items = getCartItems();
-    const subtotal = items.reduce((s,i) => s + i.subtotal, 0);
-    const discount = items.reduce((s,i) => s + i.discountAmount, 0);
-    const amount = items.reduce((s,i) => s + i.total, 0);
+    const subtotal = roundMoney(items.reduce((s,i) => s + i.subtotal, 0));
+    const eligibleSubtotal = roundMoney(items.filter(i => !i.netRate).reduce((s,i) => s + i.subtotal, 0));
+    const netRateSubtotal = roundMoney(items.filter(i => i.netRate).reduce((s,i) => s + i.subtotal, 0));
+    const discount = roundMoney(items.reduce((s,i) => s + i.discountAmount, 0));
+    const amount = roundMoney(items.reduce((s,i) => s + i.total, 0));
     return {
       items,
       qty: items.reduce((s,i) => s + i.qty, 0),
       subtotal,
+      eligibleSubtotal,
+      netRateSubtotal,
       discount,
       amount
     };
@@ -294,14 +311,14 @@
     }
     setText('itemCount', t.qty);
     setText('cartSubtotal', formatCurrency(t.subtotal));
-    setText('cartDiscountPercent', `${SITE_DISCOUNT_PERCENTAGE}%`);
+    setText('cartDiscountPercent', t.eligibleSubtotal > 0 ? `${SITE_DISCOUNT_PERCENTAGE}% eligible` : 'N/A');
     setText('cartDiscount', formatCurrency(t.discount));
     setText('cartTotal', formatCurrency(t.amount));
     setText('grandSubtotal', formatCurrency(t.subtotal));
-    setText('grandDiscountPercent', `${SITE_DISCOUNT_PERCENTAGE}%`);
+    setText('grandDiscountPercent', t.eligibleSubtotal > 0 ? `${SITE_DISCOUNT_PERCENTAGE}% eligible` : 'N/A');
     setText('grandDiscount', formatCurrency(t.discount));
     setText('grandTotal', formatCurrency(t.amount));
-    setText('mobileCartText', `Items: ${t.qty} | Discount: ${SITE_DISCOUNT_PERCENTAGE}% | Total: ${formatCurrency(t.amount)}`);
+    setText('mobileCartText', `Items: ${t.qty} | ${t.eligibleSubtotal > 0 ? `Discount: ${SITE_DISCOUNT_PERCENTAGE}% eligible` : 'Discount: N/A'} | Total: ${formatCurrency(t.amount)}`);
     const status = document.getElementById('minimumStatus');
     if (status) {
       if (MINIMUM_ENQUIRY_VALUE <= 0) {
@@ -339,10 +356,37 @@
   }
 
   function resetEstimate() {
-    if (!getCartItems().length) { alert('No selected items to clear.'); return; }
-    if (!confirm('Clear all selected quantities and start a new estimate?')) return;
-    cart = {}; storageRemove(CART_STORAGE_KEY);
-    renderProducts(); updateCartSummary(); closeEstimateModal();
+    const hasSelectedItems = getCartItems().length > 0;
+    const hasCustomerDraft = Object.values(getCustomerDetails()).some(value => String(value || '').trim());
+    if (!hasSelectedItems && !hasCustomerDraft) { alert('Nothing to reset.'); return; }
+    if (!confirm('Clear all selected quantities and customer details and start again?')) return;
+
+    // Full restart: clear order selection and customer draft, but keep the user's Tile/List preference.
+    cart = {};
+    storageRemove(CART_STORAGE_KEY);
+    storageRemove(CUSTOMER_STORAGE_KEY);
+
+    const form = document.getElementById('customerForm');
+    if (form) form.reset();
+    districtManuallyEdited = false;
+    postalAreaManuallyEdited = false;
+    isAutoFillingLocation = false;
+
+    const pinStatus = document.getElementById('pinLookupStatus');
+    if (pinStatus) pinStatus.textContent = 'Enter 6-digit PIN code to auto-fill district and postal area where available.';
+    const suggestions = document.getElementById('districtSuggestions');
+    if (suggestions) { suggestions.classList.remove('open'); suggestions.innerHTML = ''; }
+
+    const search = document.getElementById('searchInput');
+    const category = document.getElementById('categorySelect');
+    if (search) search.value = '';
+    if (category) category.value = '';
+    try { history.replaceState(null, '', location.pathname); } catch {}
+
+    renderProducts();
+    updateCartSummary();
+    closeEstimateModal();
+    document.querySelector('.catalogue-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
   function openEstimateModal() {
@@ -363,7 +407,7 @@
     wrap.innerHTML = t.items.map(i => `<div class="estimate-modal-line"><div><strong>${i.id}. ${escapeHtml(i.name)}</strong><small>${escapeHtml(i.unit)} • Qty ${i.qty} • ${i.netRate ? 'Net Rate' : `Discount ${i.discountPercent}%`} • ${formatCurrency(i.unitPrice)} each</small></div><div class="line-amount">${formatCurrency(i.total)}<span>${i.netRate ? 'Net Rate / No Discount' : `${i.discountPercent}% Discount`}</span></div></div>`).join('') || '<div class="empty-state">No products selected.</div>';
     setText('modalQty', t.qty);
     setText('modalSubtotal', formatCurrency(t.subtotal));
-    setText('modalDiscountPercent', `${SITE_DISCOUNT_PERCENTAGE}%`);
+    setText('modalDiscountPercent', t.eligibleSubtotal > 0 ? `${SITE_DISCOUNT_PERCENTAGE}% eligible` : 'N/A');
     setText('modalDiscount', formatCurrency(t.discount));
     setText('modalTotal', formatCurrency(t.amount));
   }
@@ -451,11 +495,12 @@
     </style></head><body>
       <table><tr><td class="title" colspan="4">SELVA CRACKERS - ${packing?'Shop Packing List':'Customer Estimate'}</td></tr>
       <tr><td colspan="4" style="text-align:center;font-weight:bold;background:#fff2b8">The Original Sivakasi Crackers</td></tr>
+      <tr><td colspan="4" style="text-align:center">4/244-D, NH-7, Naduvapatti Bus Stop, Etturvattam Bus Stop, Sattur - 626 203, Near Sivakasi | +91 98421 49415 | +91 80720 50086</td></tr>
       <tr><td class="label">Enquiry No</td><td>${escapeHtml(payload.enquiryNo)}</td><td class="label">Date</td><td>${escapeHtml(payload.generatedAt.toLocaleString('en-IN'))}</td></tr>
       <tr><td class="label">Customer</td><td>${escapeHtml(payload.details.name)}</td><td class="label">Mobile</td><td>${escapeHtml(payload.details.mobile)}</td></tr>
       <tr><td class="label">Location</td><td colspan="3">${escapeHtml(payload.details.city)}, ${escapeHtml(payload.details.district)} - ${escapeHtml(payload.details.pincode)}</td></tr></table><br>
       <table>${head}${rows}</table>
-      ${packing?'<p><strong>Packing instruction:</strong> Check quantity carefully before dispatch. No pricing is shown on this packing list.</p>':`<p><strong>Subtotal:</strong> ${formatCurrency(payload.subtotal)}<br><strong>Discount:</strong> ${SITE_DISCOUNT_PERCENTAGE}% (${formatCurrency(payload.discount)})<br><strong>Net Total:</strong> ${formatCurrency(payload.amount)}</p>`}
+      ${packing?'<p><strong>Packing instruction:</strong> Check quantity carefully before dispatch. No pricing is shown on this packing list.</p>':`<p><strong>Eligible Items List Subtotal:</strong> ${formatCurrency(payload.eligibleSubtotal)}<br><strong>Promotional Discount:</strong> ${SITE_DISCOUNT_PERCENTAGE}% on eligible items only (${formatCurrency(payload.discount)})<br><strong>Net Rate Items Subtotal:</strong> ${formatCurrency(payload.netRateSubtotal)} - No Discount<br><strong>Estimate Total:</strong> ${formatCurrency(payload.amount)}</p><p><strong>Important:</strong> Net Rate items are not eligible for promotional discount. This is an estimate only; final stock availability, payment and pickup/delivery details are confirmed directly by SELVA CRACKERS.</p>`}
     </body></html>`;
   }
   function downloadBlob(content, filename, type) {
@@ -472,19 +517,35 @@
     const pdf=new JsPdf({unit:'mm',format:'a4'});
     pdf.setFont('helvetica','bold');pdf.setTextColor(139,17,17);pdf.setFontSize(18);pdf.text('SELVA CRACKERS',12,15);
     pdf.setFontSize(11);pdf.setTextColor(16,24,39);pdf.text('The Original Sivakasi Crackers',12,22);pdf.setFontSize(10);pdf.text(packing?'Shop Packing List':'Customer Estimate',12,28);
-    pdf.setFont('helvetica','normal');pdf.setFontSize(8.5);
-    pdf.text(`Enquiry: ${payload.enquiryNo}`,12,34);pdf.text(`Date: ${payload.generatedAt.toLocaleString('en-IN')}`,110,34);
-    pdf.text(`Customer: ${payload.details.name}`,12,40);pdf.text(`Mobile: ${payload.details.mobile}`,110,40);
-    pdf.text(`Location: ${payload.details.city}, ${payload.details.district} - ${payload.details.pincode}`,12,46);
+    pdf.setFont('helvetica','normal');pdf.setFontSize(8);
+    pdf.text('4/244-D, NH-7, Naduvapatti Bus Stop, Etturvattam Bus Stop, Sattur - 626 203, Near Sivakasi',12,34);
+    pdf.text('Phone: +91 98421 49415 | +91 80720 50086',12,39);
+    pdf.setFontSize(8.5);
+    pdf.text(`Enquiry: ${payload.enquiryNo}`,12,45);pdf.text(`Date: ${payload.generatedAt.toLocaleString('en-IN')}`,110,45);
+    pdf.text(`Customer: ${payload.details.name}`,12,51);pdf.text(`Mobile: ${payload.details.mobile}`,110,51);
+    pdf.text(`Location: ${payload.details.city}, ${payload.details.district} - ${payload.details.pincode}`,12,57);
+    const pdfMoney = value => `INR ${roundMoney(value).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
     const body=payload.items.map((i,idx)=>packing
       ? [idx+1,i.name,i.category,i.unit,i.qty]
-      : [idx+1,i.name,i.unit,i.qty,formatCurrency(i.baseUnitPrice),i.netRate?'Net':`${i.discountPercent}%`,formatCurrency(i.unitPrice),formatCurrency(i.total)]);
+      : [idx+1,i.name,i.unit,i.qty,pdfMoney(i.baseUnitPrice),i.netRate?'Net':`${i.discountPercent}%`,pdfMoney(i.unitPrice),pdfMoney(i.total)]);
     const head=packing ? [['#','Product','Category','Unit','Qty']] : [['#','Product','Unit','Qty','List','Disc.','Your Rate','Total']];
     if (typeof pdf.autoTable !== 'function') { alert('PDF table library is unavailable. Please try again.'); return false; }
-    pdf.autoTable({startY:52,head,body,styles:{fontSize:7,cellPadding:2},headStyles:{fillColor:[95,7,7],textColor:[247,201,72]},alternateRowStyles:{fillColor:[255,247,223]}});
+    pdf.autoTable({startY:63,head,body,styles:{fontSize:7,cellPadding:2},headStyles:{fillColor:[95,7,7],textColor:[247,201,72]},alternateRowStyles:{fillColor:[255,247,223]}});
     let y=pdf.lastAutoTable.finalY+8;
     pdf.setFont('helvetica','bold');pdf.setTextColor(139,17,17);pdf.setFontSize(10);
-    if (packing) { pdf.text('Check quantity carefully before dispatch.',12,y); } else { pdf.text(`Subtotal: INR ${payload.subtotal.toLocaleString('en-IN')} | Discount: ${SITE_DISCOUNT_PERCENTAGE}% (INR ${payload.discount.toLocaleString('en-IN')}) | Net Total: INR ${payload.amount.toLocaleString('en-IN')}`,12,y); }
+    if (packing) {
+      pdf.text('Check quantity carefully before dispatch.',12,y);
+    } else {
+      const money = value => roundMoney(value).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      pdf.text([
+        `Eligible Items List Subtotal: INR ${money(payload.eligibleSubtotal)}`,
+        `Promotional Discount: ${SITE_DISCOUNT_PERCENTAGE}% on eligible items only (-INR ${money(payload.discount)})`,
+        `Net Rate Items Subtotal: INR ${money(payload.netRateSubtotal)} - No Discount`,
+        `Estimate Total: INR ${money(payload.amount)}`
+      ],12,y);
+      pdf.setFont('helvetica','normal');pdf.setTextColor(71,84,103);pdf.setFontSize(7.5);
+      pdf.text('Important: Net Rate items are not eligible for promotional discount. Estimate only; final stock, payment and pickup/delivery details are confirmed directly by SELVA CRACKERS.',12,y+24,{maxWidth:185});
+    }
     pdf.save(`${payload.enquiryNo}_${packing?'packing_list':'customer_estimate'}.pdf`);
     return true;
   }
@@ -507,8 +568,9 @@ PIN Code: ${payload.details.pincode}
 Selected Products:
 ${itemLines}
 
-Subtotal: ${formatCurrency(payload.subtotal)}
-Discount: ${SITE_DISCOUNT_PERCENTAGE}% (${formatCurrency(payload.discount)})
+Eligible Items List Subtotal: ${formatCurrency(payload.eligibleSubtotal)}
+Promotional Discount: ${SITE_DISCOUNT_PERCENTAGE}% on eligible items only (-${formatCurrency(payload.discount)})
+Net Rate Items Subtotal: ${formatCurrency(payload.netRateSubtotal)} - No Discount
 Estimate Total: ${formatCurrency(payload.amount)}
 
 Message: ${payload.details.message || 'No special request'}
@@ -551,11 +613,11 @@ Note: Please confirm availability, permitted products, payment and next steps th
     });
     document.getElementById('openEstimateBtn')?.addEventListener('click',openEstimateModal);
     document.getElementById('mobileViewEstimateBtn')?.addEventListener('click',openEstimateModal);
+    document.getElementById('mobileResetBtn')?.addEventListener('click',resetEstimate);
     document.getElementById('estimateModalClose')?.addEventListener('click',closeEstimateModal);
     document.getElementById('modalContinueBtn')?.addEventListener('click',closeEstimateModal);
     document.getElementById('modalDetailsBtn')?.addEventListener('click',()=>{closeEstimateModal();document.getElementById('customer-details')?.scrollIntoView({behavior:'smooth'});});
     document.getElementById('estimateModal')?.addEventListener('click',e=>{if(e.target.id==='estimateModal')closeEstimateModal();});
-    document.getElementById('resetEstimateBtn')?.addEventListener('click',resetEstimate);
 
     document.getElementById('customerPincode')?.addEventListener('input',handlePincodeAutoFill);
     document.getElementById('customerDistrict')?.addEventListener('focus',e=>showDistrictSuggestions(e.target.value));

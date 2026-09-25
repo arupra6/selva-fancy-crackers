@@ -1,3 +1,5 @@
+// Optional per-product image: add image: 'images/products/<file>.webp' to a product.
+// If omitted, tile view automatically uses images/product-placeholder.webp.
 // SELVA CRACKERS 2026 catalogue
 // Source: user-provided 2026 price list.
 // Items 44 and 52 have no printed price; item 171 is printed as 450/500,
