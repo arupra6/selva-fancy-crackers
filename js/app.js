@@ -71,6 +71,13 @@
   let districtManuallyEdited = false;
   let postalAreaManuallyEdited = false;
   let isAutoFillingLocation = false;
+  let activeEnquiryNo = null;
+  let activeEnquiryAt = null;
+
+  function invalidateEnquiryReference() {
+    activeEnquiryNo = null;
+    activeEnquiryAt = null;
+  }
 
   function readJson(key, fallback) {
     try { return JSON.parse(storageGet(key)) || fallback; }
@@ -238,6 +245,7 @@
     if (!isSelectable(product)) return;
     const next = Math.max(0, getQty(id) + delta);
     if (next === 0) delete cart[id]; else cart[id] = next;
+    invalidateEnquiryReference();
     saveCart();
     renderProducts();
     if (document.getElementById('estimateModal')?.classList.contains('open')) renderEstimateModal();
@@ -248,6 +256,7 @@
     let value = parseInt(raw, 10);
     if (!Number.isFinite(value) || value < 0) value = 0;
     if (value === 0) delete cart[id]; else cart[id] = value;
+    invalidateEnquiryReference();
     saveCart();
     updateVisibleTotals();
     updateCartSummary();
@@ -363,6 +372,7 @@
 
     // Full restart: clear order selection and customer draft, but keep the user's Tile/List preference.
     cart = {};
+    invalidateEnquiryReference();
     storageRemove(CART_STORAGE_KEY);
     storageRemove(CUSTOMER_STORAGE_KEY);
 
@@ -414,6 +424,7 @@
 
   function saveCustomerDraft() {
     if (!document.getElementById('customerForm')) return;
+    invalidateEnquiryReference();
     storageSet(CUSTOMER_STORAGE_KEY, JSON.stringify(getCustomerDetails()));
   }
   function restoreCustomerDraft() {
@@ -480,40 +491,17 @@
     if (!t.items.length) { alert('Please select at least one product.'); return null; }
     if (MINIMUM_ENQUIRY_VALUE > 0 && t.amount < MINIMUM_ENQUIRY_VALUE) { alert(`Minimum enquiry value is ${formatCurrency(MINIMUM_ENQUIRY_VALUE)}.`); return null; }
     const details=validateCustomerDetails(); if (!details) return null;
-    return { ...t, details, enquiryNo:generateEnquiryNumber(), generatedAt:new Date() };
+    if (!activeEnquiryNo) {
+      activeEnquiryNo = generateEnquiryNumber();
+      activeEnquiryAt = new Date();
+    }
+    return { ...t, details, enquiryNo:activeEnquiryNo, generatedAt:activeEnquiryAt };
   }
 
-  function buildExcelHtml(payload, packing=false) {
-    const rows = payload.items.map((i,idx) => packing
-      ? `<tr><td>${idx+1}</td><td>${escapeHtml(i.name)}</td><td>${escapeHtml(i.category)}</td><td>${escapeHtml(i.unit)}</td><td>${i.qty}</td></tr>`
-      : `<tr><td>${idx+1}</td><td>${escapeHtml(i.name)}</td><td>${escapeHtml(i.category)}</td><td>${escapeHtml(i.unit)}</td><td>${i.qty}</td><td>${i.netRate?'Net Rate':'Discounted'}</td><td>${i.baseUnitPrice}</td><td>${i.netRate?0:i.discountPercent}%</td><td>${i.unitPrice}</td><td>${i.total}</td></tr>`).join('');
-    const head = packing
-      ? '<tr><th>S.No</th><th>Product</th><th>Category</th><th>Unit</th><th>Qty</th></tr>'
-      : '<tr><th>S.No</th><th>Product</th><th>Category</th><th>Unit</th><th>Qty</th><th>Price Type</th><th>List Rate</th><th>Discount %</th><th>Your Rate</th><th>Total</th></tr>';
-    return `<!doctype html><html><head><meta charset="UTF-8"><style>
-      body{font-family:Arial;color:#101827}table{border-collapse:collapse;width:100%}th,td{border:1px solid #b8a67a;padding:8px;font-size:12px}th{background:#5f0707;color:#f7c948}.title{font-size:20px;font-weight:bold;color:#8b1111;background:#fff7df}.label{font-weight:bold;background:#fff7df}.total{font-weight:bold;color:#8b1111}
-    </style></head><body>
-      <table><tr><td class="title" colspan="4">SELVA CRACKERS - ${packing?'Shop Packing List':'Customer Estimate'}</td></tr>
-      <tr><td colspan="4" style="text-align:center;font-weight:bold;background:#fff2b8">The Original Sivakasi Crackers</td></tr>
-      <tr><td colspan="4" style="text-align:center">4/244-D, NH-7, Naduvapatti Bus Stop, Etturvattam Bus Stop, Sattur - 626 203, Near Sivakasi | +91 98421 49415 | +91 80720 50086</td></tr>
-      <tr><td class="label">Enquiry No</td><td>${escapeHtml(payload.enquiryNo)}</td><td class="label">Date</td><td>${escapeHtml(payload.generatedAt.toLocaleString('en-IN'))}</td></tr>
-      <tr><td class="label">Customer</td><td>${escapeHtml(payload.details.name)}</td><td class="label">Mobile</td><td>${escapeHtml(payload.details.mobile)}</td></tr>
-      <tr><td class="label">Location</td><td colspan="3">${escapeHtml(payload.details.city)}, ${escapeHtml(payload.details.district)} - ${escapeHtml(payload.details.pincode)}</td></tr></table><br>
-      <table>${head}${rows}</table>
-      ${packing?'<p><strong>Packing instruction:</strong> Check quantity carefully before dispatch. No pricing is shown on this packing list.</p>':`<p><strong>Eligible Items List Subtotal:</strong> ${formatCurrency(payload.eligibleSubtotal)}<br><strong>Promotional Discount:</strong> ${SITE_DISCOUNT_PERCENTAGE}% on eligible items only (${formatCurrency(payload.discount)})<br><strong>Net Rate Items Subtotal:</strong> ${formatCurrency(payload.netRateSubtotal)} - No Discount<br><strong>Estimate Total:</strong> ${formatCurrency(payload.amount)}</p><p><strong>Important:</strong> Net Rate items are not eligible for promotional discount. This is an estimate only; final stock availability, payment and pickup/delivery details are confirmed directly by SELVA CRACKERS.</p>`}
-    </body></html>`;
-  }
-  function downloadBlob(content, filename, type) {
-    const blob=new Blob([content],{type}); const url=URL.createObjectURL(blob); const a=document.createElement('a');
-    a.href=url;a.download=filename;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1200);
-  }
-  function downloadExcel(payload, packing=false) {
-    downloadBlob(buildExcelHtml(payload,packing), `${payload.enquiryNo}_${packing?'packing_list':'customer_estimate'}.xls`, 'application/vnd.ms-excel;charset=utf-8');
-  }
   function getJsPdf() { return window.jspdf?.jsPDF || null; }
   function downloadPdf(payload, packing=false) {
     const JsPdf=getJsPdf();
-    if (!JsPdf) { alert('PDF library is still loading or unavailable. Please try again, or use the Excel download.'); return false; }
+    if (!JsPdf) { alert('PDF library is still loading or unavailable. Please try again in a moment.'); return false; }
     const pdf=new JsPdf({unit:'mm',format:'a4'});
     pdf.setFont('helvetica','bold');pdf.setTextColor(139,17,17);pdf.setFontSize(18);pdf.text('SELVA CRACKERS',12,15);
     pdf.setFontSize(11);pdf.setTextColor(16,24,39);pdf.text('The Original Sivakasi Crackers',12,22);pdf.setFontSize(10);pdf.text(packing?'Shop Packing List':'Customer Estimate',12,28);
@@ -526,11 +514,16 @@
     pdf.text(`Location: ${payload.details.city}, ${payload.details.district} - ${payload.details.pincode}`,12,57);
     const pdfMoney = value => `INR ${roundMoney(value).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
     const body=payload.items.map((i,idx)=>packing
-      ? [idx+1,i.name,i.category,i.unit,i.qty]
-      : [idx+1,i.name,i.unit,i.qty,pdfMoney(i.baseUnitPrice),i.netRate?'Net':`${i.discountPercent}%`,pdfMoney(i.unitPrice),pdfMoney(i.total)]);
-    const head=packing ? [['#','Product','Category','Unit','Qty']] : [['#','Product','Unit','Qty','List','Disc.','Your Rate','Total']];
+      ? [idx+1,i.id,i.name,i.category,i.unit,i.qty]
+      : [idx+1,i.id,i.name,i.unit,i.qty,pdfMoney(i.baseUnitPrice),i.netRate?'Net':`${i.discountPercent}%`,pdfMoney(i.unitPrice),pdfMoney(i.total)]);
+    const head=packing
+      ? [['S.No','Item No','Product','Category','Unit','Qty']]
+      : [['S.No','Item No','Product','Unit','Qty','List Rate','Disc.','Your Rate','Total']];
+    const columnStyles=packing
+      ? {0:{cellWidth:10},1:{cellWidth:14},2:{cellWidth:65},3:{cellWidth:42},4:{cellWidth:15},5:{cellWidth:14}}
+      : {0:{cellWidth:10},1:{cellWidth:14},2:{cellWidth:47},3:{cellWidth:13},4:{cellWidth:10},5:{cellWidth:20},6:{cellWidth:14},7:{cellWidth:20},8:{cellWidth:20}};
     if (typeof pdf.autoTable !== 'function') { alert('PDF table library is unavailable. Please try again.'); return false; }
-    pdf.autoTable({startY:63,head,body,styles:{fontSize:7,cellPadding:2},headStyles:{fillColor:[95,7,7],textColor:[247,201,72]},alternateRowStyles:{fillColor:[255,247,223]}});
+    pdf.autoTable({startY:63,head,body,margin:{left:12,right:12},styles:{fontSize:6.6,cellPadding:1.8,overflow:'linebreak',valign:'middle'},columnStyles,headStyles:{fillColor:[95,7,7],textColor:[247,201,72],fontStyle:'bold'},alternateRowStyles:{fillColor:[255,247,223]}});
     let y=pdf.lastAutoTable.finalY+8;
     pdf.setFont('helvetica','bold');pdf.setTextColor(139,17,17);pdf.setFontSize(10);
     if (packing) {
@@ -552,8 +545,8 @@
 
   function sendWhatsAppEnquiry() {
     const payload=validateForDocument(); if (!payload) return;
-    // Match the proven Ramdev flow: generate files locally, then open WhatsApp.
-    downloadPdf(payload,false); downloadExcel(payload,false); downloadPdf(payload,true); downloadExcel(payload,true);
+    // Generate the two required PDFs locally, then open WhatsApp.
+    downloadPdf(payload,false); downloadPdf(payload,true);
     const itemLines=payload.items.map(i=>`${i.id}. ${i.name} (${i.unit}) | Qty ${i.qty} | List ${formatCurrency(i.baseUnitPrice)} | ${i.netRate?'Net Rate / No Discount':`Discount ${i.discountPercent}%`} | Rate ${formatCurrency(i.unitPrice)} | Total ${formatCurrency(i.total)}`).join('\n');
     const text=`SELVA CRACKERS Price List Enquiry
 Enquiry No: ${payload.enquiryNo}
@@ -633,9 +626,7 @@ Note: Please confirm availability, permitted products, payment and next steps th
 
     document.getElementById('whatsappBtn')?.addEventListener('click',sendWhatsAppEnquiry);
     document.getElementById('estimatePdfBtn')?.addEventListener('click',()=>{const p=validateForDocument();if(p)downloadPdf(p,false);});
-    document.getElementById('estimateExcelBtn')?.addEventListener('click',()=>{const p=validateForDocument();if(p)downloadExcel(p,false);});
     document.getElementById('packingPdfBtn')?.addEventListener('click',()=>{const p=validateForDocument();if(p)downloadPdf(p,true);});
-    document.getElementById('packingExcelBtn')?.addEventListener('click',()=>{const p=validateForDocument();if(p)downloadExcel(p,true);});
 
     const queryCat=new URLSearchParams(location.search).get('category');
     if(queryCat){
