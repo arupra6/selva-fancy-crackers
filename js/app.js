@@ -5,7 +5,11 @@
   const VIEW_STORAGE_KEY = 'selvaCrackersProductView';
   const CUSTOMER_STORAGE_KEY = 'selvaCrackersCustomer';
   const OFFICIAL_WHATSAPP_NUMBER = '919842149415';
-  const MINIMUM_ENQUIRY_VALUE = 0;
+  const MINIMUM_ENQUIRY_VALUE = 3000;
+  // Global promotional discount for standard-price items only.
+  // Keep at 0 until the business confirms a campaign percentage.
+  // Net Rate items are intentionally excluded from this discount.
+  const SITE_DISCOUNT_PERCENTAGE = 0;
 
   const tamilNaduDistricts = [
     'Ariyalur','Chengalpattu','Chennai','Coimbatore','Cuddalore','Dharmapuri','Dindigul','Erode',
@@ -79,6 +83,21 @@
     const n = Number(value || 0);
     return '₹' + n.toLocaleString('en-IN', { minimumFractionDigits: n % 1 ? 2 : 0, maximumFractionDigits: 2 });
   }
+  function discountPercentFor(product) {
+    if (!product || product.netRate) return 0;
+    const pct = Number(SITE_DISCOUNT_PERCENTAGE || 0);
+    return Number.isFinite(pct) ? Math.min(100, Math.max(0, pct)) : 0;
+  }
+  function discountedUnitPrice(product) {
+    if (!isSelectable(product)) return 0;
+    const base = Number(product.price);
+    const pct = discountPercentFor(product);
+    return base * (1 - pct / 100);
+  }
+  function discountAmountFor(product, qty=1) {
+    if (!isSelectable(product)) return 0;
+    return Number(product.price) * Math.max(0, Number(qty || 0)) - discountedUnitPrice(product) * Math.max(0, Number(qty || 0));
+  }
   function saveCart() { storageSet(CART_STORAGE_KEY, JSON.stringify(cart)); }
   function categorySlug(value='') { return value.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,''); }
   function productArray() {
@@ -112,18 +131,24 @@
 
   function renderTileProduct(product) {
     const qty = getQty(product.id);
-    const total = isSelectable(product) ? qty * Number(product.price) : 0;
+    const pct = discountPercentFor(product);
+    const baseUnit = isSelectable(product) ? Number(product.price) : 0;
+    const netUnit = isSelectable(product) ? discountedUnitPrice(product) : 0;
+    const total = isSelectable(product) ? qty * netUnit : 0;
     const price = product.price !== null ? formatCurrency(product.price) : escapeHtml(product.priceText || 'Price on request');
+    const netPrice = isSelectable(product) ? formatCurrency(netUnit) : price;
     return `<article class="product-tile" data-product-id="${product.id}">
       <div class="tile-topline">
         <span class="serial-chip">S.No ${product.id}</span>
-        <span class="tag ${product.netRate ? 'tag-net' : ''}">${product.netRate ? 'Net Rate' : '2026 Rate'}</span>
+        <span class="tag ${product.netRate ? 'tag-net' : 'tag-discount'}">${product.netRate ? 'Net Rate' : `${pct}% Discount`}</span>
       </div>
       <h3>${escapeHtml(product.name)}</h3>
       <div class="product-tamil">${escapeHtml(product.tamilName || '')}</div>
       <div class="product-meta"><span>${escapeHtml(product.category)}</span><span>Unit: ${escapeHtml(product.unit)}</span></div>
-      <div class="price-line">
-        <div class="price-block"><small>${product.netRate ? 'Net Price' : 'Rate'}</small><strong>${price}</strong></div>
+      <div class="price-line discount-price-line">
+        <div class="price-block"><small>${product.netRate ? 'Net Price' : 'List Rate'}</small><strong>${price}</strong></div>
+        ${product.netRate ? '' : `<div class="discount-block"><small>Discount</small><strong>${pct}%</strong></div>`}
+        <div class="net-price-block"><small>${product.netRate ? 'Rate' : 'Your Rate'}</small><strong>${netPrice}</strong></div>
         <div class="tile-total"><small>Total</small><strong>${isSelectable(product) ? formatCurrency(total) : '—'}</strong></div>
       </div>
       ${isSelectable(product) ? `<div class="tile-qty-row"><div class="qty-control">
@@ -136,15 +161,17 @@
 
   function renderListProduct(product) {
     const qty = getQty(product.id);
-    const total = isSelectable(product) ? qty * Number(product.price) : 0;
+    const pct = discountPercentFor(product);
+    const total = isSelectable(product) ? qty * discountedUnitPrice(product) : 0;
     const price = product.price !== null ? formatCurrency(product.price) : escapeHtml(product.priceText || 'Price on request');
+    const netPrice = isSelectable(product) ? formatCurrency(discountedUnitPrice(product)) : price;
     return `<div class="product-list-row" data-product-id="${product.id}">
       <div class="list-main">
         <div class="list-main-title"><span class="serial-chip">${product.id}</span><strong>${escapeHtml(product.name)}</strong></div>
         <small>${escapeHtml(product.tamilName || '')}</small>
-        <div class="list-meta"><span>${escapeHtml(product.category)}</span><span>Unit: ${escapeHtml(product.unit)}</span>${product.netRate ? '<span class="tag tag-net">Net Rate</span>' : ''}</div>
+        <div class="list-meta"><span>${escapeHtml(product.category)}</span><span>Unit: ${escapeHtml(product.unit)}</span>${product.netRate ? '<span class="tag tag-net">Net Rate</span>' : `<span class="tag tag-discount">${pct}% Discount</span>`}</div>
       </div>
-      <div class="list-price"><small>${product.netRate ? 'Net Price' : 'Rate'}</small><strong>${price}</strong></div>
+      <div class="list-price"><small>${product.netRate ? 'Net Price' : 'List / Your Rate'}</small><strong>${product.netRate ? netPrice : `${price} / ${netPrice}`}</strong></div>
       <div class="list-qty">${isSelectable(product) ? `<div class="qty-control">
         <button type="button" data-action="minus" data-id="${product.id}">−</button>
         <input class="qty-input" data-action="qty" data-id="${product.id}" type="number" min="0" step="1" value="${qty}">
@@ -221,7 +248,7 @@
       const input = el.querySelector('.qty-input');
       const total = el.querySelector('.tile-total strong, .list-total strong');
       if (input) input.value = getQty(id);
-      if (total) total.textContent = formatCurrency(getQty(id) * Number(p.price));
+      if (total) total.textContent = formatCurrency(getQty(id) * discountedUnitPrice(p));
     });
   }
   function getCartItems() {
@@ -229,15 +256,27 @@
       const p = getProduct(id);
       if (!p || !isSelectable(p)) return null;
       const q = Math.max(0, Number(qty || 0));
-      return q > 0 ? { ...p, qty:q, total:q * Number(p.price) } : null;
+      if (q <= 0) return null;
+      const baseUnitPrice = Number(p.price);
+      const discountPercent = discountPercentFor(p);
+      const unitPrice = discountedUnitPrice(p);
+      const subtotal = q * baseUnitPrice;
+      const discountAmount = subtotal - q * unitPrice;
+      const total = q * unitPrice;
+      return { ...p, qty:q, baseUnitPrice, discountPercent, unitPrice, subtotal, discountAmount, total };
     }).filter(Boolean);
   }
   function totals() {
     const items = getCartItems();
+    const subtotal = items.reduce((s,i) => s + i.subtotal, 0);
+    const discount = items.reduce((s,i) => s + i.discountAmount, 0);
+    const amount = items.reduce((s,i) => s + i.total, 0);
     return {
       items,
       qty: items.reduce((s,i) => s + i.qty, 0),
-      amount: items.reduce((s,i) => s + i.total, 0)
+      subtotal,
+      discount,
+      amount
     };
   }
 
@@ -254,9 +293,15 @@
       }
     }
     setText('itemCount', t.qty);
+    setText('cartSubtotal', formatCurrency(t.subtotal));
+    setText('cartDiscountPercent', `${SITE_DISCOUNT_PERCENTAGE}%`);
+    setText('cartDiscount', formatCurrency(t.discount));
     setText('cartTotal', formatCurrency(t.amount));
+    setText('grandSubtotal', formatCurrency(t.subtotal));
+    setText('grandDiscountPercent', `${SITE_DISCOUNT_PERCENTAGE}%`);
+    setText('grandDiscount', formatCurrency(t.discount));
     setText('grandTotal', formatCurrency(t.amount));
-    setText('mobileCartText', `Items: ${t.qty} | Total: ${formatCurrency(t.amount)}`);
+    setText('mobileCartText', `Items: ${t.qty} | Discount: ${SITE_DISCOUNT_PERCENTAGE}% | Total: ${formatCurrency(t.amount)}`);
     const status = document.getElementById('minimumStatus');
     if (status) {
       if (MINIMUM_ENQUIRY_VALUE <= 0) {
@@ -315,8 +360,12 @@
   function renderEstimateModal() {
     const t = totals(); const wrap = document.getElementById('estimateModalItems');
     if (!wrap) return;
-    wrap.innerHTML = t.items.map(i => `<div class="estimate-modal-line"><div><strong>${i.id}. ${escapeHtml(i.name)}</strong><small>${escapeHtml(i.unit)} • Qty ${i.qty} • ${formatCurrency(i.price)} each</small></div><div class="line-amount">${formatCurrency(i.total)}<span>${i.netRate ? 'Net Rate' : '2026 Rate'}</span></div></div>`).join('') || '<div class="empty-state">No products selected.</div>';
-    setText('modalQty', t.qty); setText('modalTotal', formatCurrency(t.amount));
+    wrap.innerHTML = t.items.map(i => `<div class="estimate-modal-line"><div><strong>${i.id}. ${escapeHtml(i.name)}</strong><small>${escapeHtml(i.unit)} • Qty ${i.qty} • ${i.netRate ? 'Net Rate' : `Discount ${i.discountPercent}%`} • ${formatCurrency(i.unitPrice)} each</small></div><div class="line-amount">${formatCurrency(i.total)}<span>${i.netRate ? 'Net Rate / No Discount' : `${i.discountPercent}% Discount`}</span></div></div>`).join('') || '<div class="empty-state">No products selected.</div>';
+    setText('modalQty', t.qty);
+    setText('modalSubtotal', formatCurrency(t.subtotal));
+    setText('modalDiscountPercent', `${SITE_DISCOUNT_PERCENTAGE}%`);
+    setText('modalDiscount', formatCurrency(t.discount));
+    setText('modalTotal', formatCurrency(t.amount));
   }
 
   function saveCustomerDraft() {
@@ -393,19 +442,20 @@
   function buildExcelHtml(payload, packing=false) {
     const rows = payload.items.map((i,idx) => packing
       ? `<tr><td>${idx+1}</td><td>${escapeHtml(i.name)}</td><td>${escapeHtml(i.category)}</td><td>${escapeHtml(i.unit)}</td><td>${i.qty}</td></tr>`
-      : `<tr><td>${idx+1}</td><td>${escapeHtml(i.name)}</td><td>${escapeHtml(i.category)}</td><td>${escapeHtml(i.unit)}</td><td>${i.qty}</td><td>${i.netRate?'Net Rate':'2026 Rate'}</td><td>${i.price}</td><td>${i.total}</td></tr>`).join('');
+      : `<tr><td>${idx+1}</td><td>${escapeHtml(i.name)}</td><td>${escapeHtml(i.category)}</td><td>${escapeHtml(i.unit)}</td><td>${i.qty}</td><td>${i.netRate?'Net Rate':'Discounted'}</td><td>${i.baseUnitPrice}</td><td>${i.netRate?0:i.discountPercent}%</td><td>${i.unitPrice}</td><td>${i.total}</td></tr>`).join('');
     const head = packing
       ? '<tr><th>S.No</th><th>Product</th><th>Category</th><th>Unit</th><th>Qty</th></tr>'
-      : '<tr><th>S.No</th><th>Product</th><th>Category</th><th>Unit</th><th>Qty</th><th>Price Type</th><th>Rate</th><th>Total</th></tr>';
+      : '<tr><th>S.No</th><th>Product</th><th>Category</th><th>Unit</th><th>Qty</th><th>Price Type</th><th>List Rate</th><th>Discount %</th><th>Your Rate</th><th>Total</th></tr>';
     return `<!doctype html><html><head><meta charset="UTF-8"><style>
       body{font-family:Arial;color:#101827}table{border-collapse:collapse;width:100%}th,td{border:1px solid #b8a67a;padding:8px;font-size:12px}th{background:#5f0707;color:#f7c948}.title{font-size:20px;font-weight:bold;color:#8b1111;background:#fff7df}.label{font-weight:bold;background:#fff7df}.total{font-weight:bold;color:#8b1111}
     </style></head><body>
       <table><tr><td class="title" colspan="4">SELVA CRACKERS - ${packing?'Shop Packing List':'Customer Estimate'}</td></tr>
+      <tr><td colspan="4" style="text-align:center;font-weight:bold;background:#fff2b8">The Original Sivakasi Crackers</td></tr>
       <tr><td class="label">Enquiry No</td><td>${escapeHtml(payload.enquiryNo)}</td><td class="label">Date</td><td>${escapeHtml(payload.generatedAt.toLocaleString('en-IN'))}</td></tr>
       <tr><td class="label">Customer</td><td>${escapeHtml(payload.details.name)}</td><td class="label">Mobile</td><td>${escapeHtml(payload.details.mobile)}</td></tr>
       <tr><td class="label">Location</td><td colspan="3">${escapeHtml(payload.details.city)}, ${escapeHtml(payload.details.district)} - ${escapeHtml(payload.details.pincode)}</td></tr></table><br>
       <table>${head}${rows}</table>
-      ${packing?'<p><strong>Packing instruction:</strong> Check quantity carefully before dispatch. No pricing is shown on this packing list.</p>':`<p class="total">Grand Total: ${formatCurrency(payload.amount)}</p>`}
+      ${packing?'<p><strong>Packing instruction:</strong> Check quantity carefully before dispatch. No pricing is shown on this packing list.</p>':`<p><strong>Subtotal:</strong> ${formatCurrency(payload.subtotal)}<br><strong>Discount:</strong> ${SITE_DISCOUNT_PERCENTAGE}% (${formatCurrency(payload.discount)})<br><strong>Net Total:</strong> ${formatCurrency(payload.amount)}</p>`}
     </body></html>`;
   }
   function downloadBlob(content, filename, type) {
@@ -421,20 +471,20 @@
     if (!JsPdf) { alert('PDF library is still loading or unavailable. Please try again, or use the Excel download.'); return false; }
     const pdf=new JsPdf({unit:'mm',format:'a4'});
     pdf.setFont('helvetica','bold');pdf.setTextColor(139,17,17);pdf.setFontSize(18);pdf.text('SELVA CRACKERS',12,15);
-    pdf.setFontSize(11);pdf.setTextColor(16,24,39);pdf.text(packing?'Shop Packing List':'Customer Estimate',12,23);
+    pdf.setFontSize(11);pdf.setTextColor(16,24,39);pdf.text('The Original Sivakasi Crackers',12,22);pdf.setFontSize(10);pdf.text(packing?'Shop Packing List':'Customer Estimate',12,28);
     pdf.setFont('helvetica','normal');pdf.setFontSize(8.5);
-    pdf.text(`Enquiry: ${payload.enquiryNo}`,12,30);pdf.text(`Date: ${payload.generatedAt.toLocaleString('en-IN')}`,110,30);
-    pdf.text(`Customer: ${payload.details.name}`,12,36);pdf.text(`Mobile: ${payload.details.mobile}`,110,36);
-    pdf.text(`Location: ${payload.details.city}, ${payload.details.district} - ${payload.details.pincode}`,12,42);
+    pdf.text(`Enquiry: ${payload.enquiryNo}`,12,34);pdf.text(`Date: ${payload.generatedAt.toLocaleString('en-IN')}`,110,34);
+    pdf.text(`Customer: ${payload.details.name}`,12,40);pdf.text(`Mobile: ${payload.details.mobile}`,110,40);
+    pdf.text(`Location: ${payload.details.city}, ${payload.details.district} - ${payload.details.pincode}`,12,46);
     const body=payload.items.map((i,idx)=>packing
       ? [idx+1,i.name,i.category,i.unit,i.qty]
-      : [idx+1,i.name,i.unit,i.qty,formatCurrency(i.price),formatCurrency(i.total)]);
-    const head=packing ? [['#','Product','Category','Unit','Qty']] : [['#','Product','Unit','Qty','Rate','Total']];
+      : [idx+1,i.name,i.unit,i.qty,formatCurrency(i.baseUnitPrice),i.netRate?'Net':`${i.discountPercent}%`,formatCurrency(i.unitPrice),formatCurrency(i.total)]);
+    const head=packing ? [['#','Product','Category','Unit','Qty']] : [['#','Product','Unit','Qty','List','Disc.','Your Rate','Total']];
     if (typeof pdf.autoTable !== 'function') { alert('PDF table library is unavailable. Please try again.'); return false; }
-    pdf.autoTable({startY:48,head,body,styles:{fontSize:7,cellPadding:2},headStyles:{fillColor:[95,7,7],textColor:[247,201,72]},alternateRowStyles:{fillColor:[255,247,223]}});
+    pdf.autoTable({startY:52,head,body,styles:{fontSize:7,cellPadding:2},headStyles:{fillColor:[95,7,7],textColor:[247,201,72]},alternateRowStyles:{fillColor:[255,247,223]}});
     let y=pdf.lastAutoTable.finalY+8;
     pdf.setFont('helvetica','bold');pdf.setTextColor(139,17,17);pdf.setFontSize(10);
-    pdf.text(packing?'Check quantity carefully before dispatch.':`Grand Total: INR ${payload.amount.toLocaleString('en-IN')}`,12,y);
+    if (packing) { pdf.text('Check quantity carefully before dispatch.',12,y); } else { pdf.text(`Subtotal: INR ${payload.subtotal.toLocaleString('en-IN')} | Discount: ${SITE_DISCOUNT_PERCENTAGE}% (INR ${payload.discount.toLocaleString('en-IN')}) | Net Total: INR ${payload.amount.toLocaleString('en-IN')}`,12,y); }
     pdf.save(`${payload.enquiryNo}_${packing?'packing_list':'customer_estimate'}.pdf`);
     return true;
   }
@@ -443,7 +493,7 @@
     const payload=validateForDocument(); if (!payload) return;
     // Match the proven Ramdev flow: generate files locally, then open WhatsApp.
     downloadPdf(payload,false); downloadExcel(payload,false); downloadPdf(payload,true); downloadExcel(payload,true);
-    const itemLines=payload.items.map(i=>`${i.id}. ${i.name} (${i.unit}) | Qty ${i.qty} | Rate ${formatCurrency(i.price)} | Total ${formatCurrency(i.total)}`).join('\n');
+    const itemLines=payload.items.map(i=>`${i.id}. ${i.name} (${i.unit}) | Qty ${i.qty} | List ${formatCurrency(i.baseUnitPrice)} | ${i.netRate?'Net Rate / No Discount':`Discount ${i.discountPercent}%`} | Rate ${formatCurrency(i.unitPrice)} | Total ${formatCurrency(i.total)}`).join('\n');
     const text=`SELVA CRACKERS Price List Enquiry
 Enquiry No: ${payload.enquiryNo}
 
@@ -457,6 +507,8 @@ PIN Code: ${payload.details.pincode}
 Selected Products:
 ${itemLines}
 
+Subtotal: ${formatCurrency(payload.subtotal)}
+Discount: ${SITE_DISCOUNT_PERCENTAGE}% (${formatCurrency(payload.discount)})
 Estimate Total: ${formatCurrency(payload.amount)}
 
 Message: ${payload.details.message || 'No special request'}
@@ -529,6 +581,10 @@ Note: Please confirm availability, permitted products, payment and next steps th
     }
   }
 
+  function initDiscountDisplay() {
+    document.querySelectorAll('[data-site-discount]').forEach(el => { el.textContent = `${SITE_DISCOUNT_PERCENTAGE}%`; });
+  }
+
   document.addEventListener('keydown',e=>{if(e.key==='Escape')closeEstimateModal();});
-  document.addEventListener('DOMContentLoaded',()=>{initNavigation();initProductsPage();});
+  document.addEventListener('DOMContentLoaded',()=>{initNavigation();initDiscountDisplay();initProductsPage();});
 })();

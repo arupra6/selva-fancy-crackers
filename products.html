@@ -1,176 +1,73 @@
-    <!doctype html>
-    <html lang="en">
-    <head>
-      <meta charset="utf-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1">
-      <title>Price List | Selva Crackers</title>
-      <meta name="description" content="Selva Crackers 2026 product price list. Select quantities, prepare an estimate and send an enquiry.">
-      <meta name="theme-color" content="#5f0707">
-      <link rel="stylesheet" href="css/style.css?v=20260924-4">
-      <script defer src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Price List | SELVA CRACKERS</title>
+  <meta name="description" content="Selva Crackers 2026 product price list. Select quantities, prepare an estimate and send an enquiry.">
+  <meta name="theme-color" content="#5f0707">
+  <link rel="stylesheet" href="css/style.css?v=20260924-6">
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
-
-    </head>
-    <body>
-          <div class="safety-ribbon">
-      <div class="container safety-ribbon-inner">
-        <span>Customer Safety First: verify SELVA CRACKERS official contact before making any payment.</span>
-        <a href="verify.html">Verify official details</a>
-      </div>
-    </div>
-    <header class="site-header">
-      <div class="container header-inner">
-        <a class="brand" href="index.html" aria-label="Selva Crackers home">
-          <span class="brand-seal">SC</span>
-          <span class="brand-copy"><strong>SELVA CRACKERS</strong><small>Sattur • Near Sivakasi</small></span>
-        </a>
-        <button class="menu-toggle" id="menuToggle" type="button" aria-label="Open navigation" aria-expanded="false">☰</button>
-        <nav class="site-nav" id="siteNav">
-          <a class="" href="index.html">Home</a>
+</head>
+<body>
+<div class="safety-ribbon">
+  <div class="container safety-ribbon-inner">
+    <span>Customer Safety First: Verify SELVA CRACKERS official contact before making any payment.</span>
+    <a href="verify.html">Verify official details</a>
+  </div>
+</div>
+<header class="site-header">
+  <div class="container header-inner">
+    <a class="brand" href="index.html" aria-label="Selva Crackers home">
+      <span class="brand-seal">SC</span>
+      <span class="brand-copy"><strong>SELVA CRACKERS</strong><small>The Original Sivakasi Crackers</small></span>
+    </a>
+    <button class="menu-toggle" id="menuToggle" type="button" aria-label="Open navigation" aria-expanded="false">☰</button>
+    <nav class="site-nav" id="siteNav">
+      <a class="" href="index.html">Home</a>
 <a class="" href="verify.html">Verify Us</a>
 <a class="active" href="products.html">Price List</a>
 <a class="" href="how-it-works.html">How It Works</a>
 <a class="" href="safety.html">Safety</a>
 <a class="" href="contact.html">Contact</a>
-          <a class="nav-cta" href="https://wa.me/919842149415" target="_blank" rel="noopener">WhatsApp</a>
-        </nav>
-      </div>
-    </header>
-
-      <main class="products-page">
-  <section class="page-hero compact">
-    <div class="container">
-      <span class="eyebrow">SELVA CRACKERS</span>
-      <h1>Price List</h1>
-      <p>Browse products by category, select quantities and prepare your estimate. Final confirmation is handled through official contact only.</p>
-    </div>
-  </section>
-
-  <section class="section products-intro-section">
-    <div class="container">
-      <div class="offer-summary-card">
-        <div>
-          <span class="section-label">DEEPAVALI 2026</span>
-          <h2>Selva Crackers Price List</h2>
-          <p>Choose Tile View or List View anytime. Your selected quantities are preserved in this browser.</p>
-        </div>
-        <div class="offer-summary-points">
-          <span>✓ Transparent item rates</span>
-          <span>✓ Estimate only, not online purchase</span>
-          <span>✓ Confirmation through official contact</span>
-          <span>✓ Net-rate items clearly marked</span>
-        </div>
-        <a class="btn btn-primary" href="#customer-details">Fill Customer Details</a>
-      </div>
-    </div>
-  </section>
-
-  <section class="catalogue-section">
-    <div class="container">
-      <div class="catalogue-toolbar">
-        <div class="search-box"><span>⌕</span><input id="searchInput" type="search" autocomplete="off" placeholder="Search product, category, unit or S.No"></div>
-        <select id="categorySelect" aria-label="Filter category"><option value="">All Categories</option></select>
-        <div class="view-toggle" role="group" aria-label="Product view">
-          <button id="tileViewBtn" class="active" type="button" data-view="tile">▦ Tile View</button>
-          <button id="listViewBtn" type="button" data-view="list">☷ List View</button>
-        </div>
-      </div>
-
-      <div class="catalogue-note">Scroll inside the product window. Your selected quantities are saved while you visit other pages.</div>
-
-      <div class="catalogue-layout">
-        <div class="product-window">
-          <div class="product-window-head">
-            <div><strong>2026 Catalogue</strong><small id="visibleCount">189 products</small></div>
-            <button type="button" class="link-button" id="clearSearchBtn">Clear Filter</button>
-          </div>
-          <div id="productBody" class="product-scroll tile-view-active"></div>
-        </div>
-
-        <aside class="estimate-card" aria-label="Estimate cart">
-          <div class="estimate-card-head">
-            <span>ESTIMATE CART</span>
-            <h2>Your Selection</h2>
-          </div>
-          <div id="selectedItems" class="empty-state">No products selected yet.</div>
-          <div class="estimate-metrics">
-            <div><small>Items</small><strong id="itemCount">0</strong></div>
-            <div><small>Estimate Total</small><strong id="cartTotal">₹0</strong></div>
-          </div>
-          <div id="minimumStatus" class="minimum-status info">No minimum enquiry value is currently configured.</div>
-          <a class="btn btn-primary full-width" href="#customer-details" id="continueDetailsBtn">Continue to Customer Details</a>
-          <button class="btn btn-soft full-width" type="button" id="openEstimateBtn">View Estimate</button>
-        </aside>
-      </div>
-    </div>
-  </section>
-
-  <section id="customer-details" class="section customer-section">
-    <div class="container">
-      <div class="section-heading"><span>Final Step</span><h2>Customer Details &amp; Enquiry</h2><p>Enter your details after selecting products. Your enquiry can then be sent to the shop for confirmation.</p></div>
-      <div class="customer-layout">
-        <form id="customerForm" class="customer-form" novalidate>
-          <div class="field-grid">
-            <label><span>Customer Name *</span><input id="customerName" type="text" autocomplete="name" required></label>
-            <label><span>Mobile Number *</span><input id="customerMobile" type="tel" inputmode="numeric" autocomplete="tel" maxlength="15" required></label>
-            <label><span>City / Area *</span><input id="customerCity" type="text" autocomplete="address-level2" required></label>
-            <label><span>PIN Code *</span><input id="customerPincode" type="text" inputmode="numeric" maxlength="6" autocomplete="postal-code" required><small id="pinLookupStatus">Enter 6-digit PIN code to auto-fill district and postal area where available.</small></label>
-            <label class="district-field"><span>District *</span><input id="customerDistrict" type="text" autocomplete="address-level1" required><div id="districtSuggestions" class="suggestion-box"></div></label>
-            <label><span>Postal Area *</span><input id="customerPostalArea" type="text" required></label>
-          </div>
-          <label class="full-field"><span>Message</span><textarea id="customerMessage" rows="4" placeholder="Any special request or note"></textarea></label>
-        </form>
-
-        <aside class="enquiry-final-card">
-          <span class="section-label">FINAL CHECK</span>
-          <h3>Estimate Summary</h3>
-          <div class="final-total"><span>Grand Total</span><strong id="grandTotal">₹0</strong></div>
-          <p>This is not an online purchase confirmation. Final confirmation is subject to stock availability, permitted products and offline verification.</p>
-          <button class="btn btn-primary full-width requires-selection" type="button" id="whatsappBtn">Send WhatsApp + Download Files</button>
-          <div class="download-grid">
-            <button type="button" class="btn btn-soft requires-selection" id="estimatePdfBtn">Customer Estimate PDF</button>
-            <button type="button" class="btn btn-soft requires-selection" id="estimateExcelBtn">Customer Estimate Excel</button>
-            <button type="button" class="btn btn-soft requires-selection" id="packingPdfBtn">Packing List PDF</button>
-            <button type="button" class="btn btn-soft requires-selection" id="packingExcelBtn">Packing List Excel</button>
-          </div>
-          <button type="button" class="reset-button" id="resetEstimateBtn">Clear Estimate / Reset Selection</button>
-          <small class="browser-note">When WhatsApp enquiry is sent, the website can generate estimate and packing-list files in this browser. WhatsApp cannot auto-attach those files without a backend.</small>
-        </aside>
-      </div>
-    </div>
-  </section>
-</main>
-
-<div id="mobileCartBar" class="mobile-cart-bar" aria-live="polite">
-  <span id="mobileCartText">Items: 0 | Total: ₹0</span>
-  <button type="button" id="mobileViewEstimateBtn">View Estimate</button>
-</div>
-
-<div id="estimateModal" class="modal" aria-hidden="true">
-  <div class="modal-dialog estimate-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="estimateModalTitle">
-    <button class="modal-close" type="button" id="estimateModalClose" aria-label="Close">×</button>
-    <span class="section-label">SELVA CRACKERS</span>
-    <h2 id="estimateModalTitle">Your Estimate</h2>
-    <p class="modal-subtitle">Selected products only</p>
-    <div id="estimateModalItems" class="estimate-modal-items"></div>
-    <div class="modal-totals"><span>Total Quantity <strong id="modalQty">0</strong></span><span>Estimate Total <strong id="modalTotal">₹0</strong></span></div>
-    <div class="modal-note"><strong>Note:</strong> This is an estimate only. Final availability, payment and pickup/delivery arrangements are confirmed directly by Selva Crackers.</div>
-    <div class="modal-actions"><button type="button" class="btn btn-soft" id="modalContinueBtn">Continue Shopping</button><button type="button" class="btn btn-primary" id="modalDetailsBtn">Customer Details →</button></div>
+      <a class="nav-cta" href="https://wa.me/919842149415" target="_blank" rel="noopener">WhatsApp</a>
+    </nav>
   </div>
-</div>
-
-      <footer class="site-footer" id="contact">
+</header>
+<main class="products-page">
+<section class="page-hero compact"><div class="container"><span class="eyebrow">SELVA CRACKERS</span><h1>Price List</h1><p>Browse product tiles by category, select quantities and prepare your estimate. Final confirmation will be done only through official contact.</p></div></section>
+<section class="section products-intro-section"><div class="container"><div class="offer-summary-card">
+  <div><span class="section-label">DEEPAVALI OFFER</span><h2>2026 Price List</h2><p><strong>Current Discount: <span data-site-discount>0%</span></strong> on standard-price items. Gift Box and Fancy Multi Shot items are Net Rates / No Discount. Minimum enquiry value: ₹3,000.</p></div>
+  <div class="offer-summary-points"><span>✓ Transparent Price</span><span>✓ Estimate only, not online purchase</span><span>✓ Confirmation through official contact</span><span>✓ Family-friendly category browsing</span></div>
+  <a class="btn btn-primary" href="#customer-details">Fill Customer Details</a>
+</div></div></section>
+<section class="catalogue-section"><div class="container">
+  <div class="catalogue-toolbar"><div class="search-box"><span>⌕</span><input id="searchInput" type="search" autocomplete="off" placeholder="Search product, category, unit or S.No"></div><select id="categorySelect" aria-label="Filter category"><option value="">All Categories</option></select><div class="view-toggle" role="group" aria-label="Product view"><button id="tileViewBtn" class="active" type="button" data-view="tile">▦ Tile View</button><button id="listViewBtn" type="button" data-view="list">☷ List View</button></div></div>
+  <div class="catalogue-note">Choose View Switch anytime. Your selected quantities will be preserved. Scroll inside this product window. Your selected quantities are saved while you visit other pages.</div>
+  <div class="catalogue-layout"><div class="product-window"><div class="product-window-head"><div><strong>2026 Catalogue</strong><small id="visibleCount">189 products</small></div><button type="button" class="link-button" id="clearSearchBtn">Clear Filter</button></div><div id="productBody" class="product-scroll tile-view-active"></div></div>
+  <aside class="estimate-card" aria-label="Estimate cart"><div class="estimate-card-head"><span>ESTIMATE CART</span><h2>Your Selection</h2></div><div id="selectedItems" class="empty-state">No products selected yet.</div><div class="estimate-metrics discount-metrics"><div><small>Items</small><strong id="itemCount">0</strong></div><div><small>Subtotal</small><strong id="cartSubtotal">₹0</strong></div><div><small>Discount <span id="cartDiscountPercent">0%</span></small><strong id="cartDiscount">₹0</strong></div><div><small>Estimate Total</small><strong id="cartTotal">₹0</strong></div></div><div id="minimumStatus" class="minimum-status info">Minimum enquiry value: ₹3,000</div><a class="btn btn-primary full-width" href="#customer-details" id="continueDetailsBtn">Continue to Customer Details</a><button class="btn btn-soft full-width" type="button" id="openEstimateBtn">View Estimate</button></aside></div>
+</div></section>
+<section id="customer-details" class="section customer-section"><div class="container"><div class="section-heading"><span>Final Step</span><h2>Customer Details &amp; Enquiry</h2><p>Enter your details after selecting products. The enquiry will go to the official WhatsApp number for confirmation.</p></div>
+<div class="customer-layout"><form id="customerForm" class="customer-form" novalidate><div class="field-grid"><label><span>Customer Name *</span><input id="customerName" type="text" autocomplete="name" required></label><label><span>Mobile Number *</span><input id="customerMobile" type="tel" inputmode="numeric" autocomplete="tel" maxlength="15" required></label><label><span>City / Area *</span><input id="customerCity" type="text" autocomplete="address-level2" required></label><label><span>PIN Code *</span><input id="customerPincode" type="text" inputmode="numeric" maxlength="6" autocomplete="postal-code" required><small id="pinLookupStatus">Enter 6-digit PIN code to auto-fill district and postal area where available.</small></label><label class="district-field"><span>District *</span><input id="customerDistrict" type="text" autocomplete="address-level1" required><div id="districtSuggestions" class="suggestion-box"></div></label><label><span>Postal Area *</span><input id="customerPostalArea" type="text" required></label></div><label class="full-field"><span>Message</span><textarea id="customerMessage" rows="4" placeholder="Any special request or note"></textarea></label></form>
+<aside class="enquiry-final-card"><span class="section-label">FINAL CHECK</span><h3>Estimate Summary</h3><div class="final-discount-summary"><div><span>Subtotal</span><strong id="grandSubtotal">₹0</strong></div><div><span>Discount <b id="grandDiscountPercent">0%</b></span><strong id="grandDiscount">₹0</strong></div></div><div class="final-total"><span>Grand Total</span><strong id="grandTotal">₹0</strong></div><p>This is not an online purchase confirmation. Final confirmation is subject to availability, permitted products and offline verification.</p><button class="btn btn-primary full-width requires-selection" type="button" id="whatsappBtn">Send WhatsApp + Download Files</button><div class="download-grid"><button type="button" class="btn btn-soft requires-selection" id="estimatePdfBtn">Customer Estimate PDF</button><button type="button" class="btn btn-soft requires-selection" id="estimateExcelBtn">Customer Estimate Excel</button><button type="button" class="btn btn-soft requires-selection" id="packingPdfBtn">Packing List PDF</button><button type="button" class="btn btn-soft requires-selection" id="packingExcelBtn">Packing List Excel</button></div><button type="button" class="reset-button" id="resetEstimateBtn">Clear Estimate / Reset Selection</button><small class="browser-note">When you send WhatsApp enquiry, the website will generate customer estimate files and shop packing-list files in this browser. WhatsApp web link cannot auto-attach files without backend.</small></aside></div>
+</div></section>
+</main>
+<div id="mobileCartBar" class="mobile-cart-bar" aria-live="polite"><span id="mobileCartText">Items: 0 | Total: ₹0</span><button type="button" id="mobileViewEstimateBtn">View Estimate</button></div>
+<div id="estimateModal" class="modal" aria-hidden="true"><div class="modal-dialog estimate-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="estimateModalTitle"><button class="modal-close" type="button" id="estimateModalClose" aria-label="Close">×</button><span class="section-label">SELVA CRACKERS</span><h2 id="estimateModalTitle">Your Estimate</h2><p class="modal-subtitle">Selected products only</p><div id="estimateModalItems" class="estimate-modal-items"></div><div class="modal-totals modal-totals-four"><span>Total Quantity <strong id="modalQty">0</strong></span><span>Subtotal <strong id="modalSubtotal">₹0</strong></span><span>Discount <b id="modalDiscountPercent">0%</b> <strong id="modalDiscount">₹0</strong></span><span>Estimate Total <strong id="modalTotal">₹0</strong></span></div><div class="modal-note"><strong>Note:</strong> This is an estimate only. Final availability, payment and pickup/delivery arrangements are confirmed directly by SELVA CRACKERS.</div><div class="modal-actions"><button type="button" class="btn btn-soft" id="modalContinueBtn">Continue Shopping</button><button type="button" class="btn btn-primary" id="modalDetailsBtn">Customer Details →</button></div></div></div>
+<footer class="site-footer" id="contact">
   <div class="container footer-grid">
     <div>
       <h3>SELVA CRACKERS</h3>
-      <p class="footer-tagline">Celebrate a Safe &amp; Happy Diwali</p>
-      <p>Retail Deepavali crackers catalogue, price-list and enquiry website.</p>
+      <p class="footer-tagline">The Original Sivakasi Crackers</p>
+      <p>Retail Deepavali firecrackers catalogue, price-list and enquiry website.</p>
     </div>
     <div>
       <h4>Official Contact</h4>
       <a href="tel:+919842149415">Call: +91 98421 49415</a>
-      <a href="tel:+918072050086">Call: +91 80720 50086</a>
-</div>
+      <a href="https://wa.me/919842149415" target="_blank" rel="noopener">WhatsApp: +91 98421 49415</a>
+      <a href="tel:+918072050086">Alternate: +91 80720 50086</a>
+    </div>
     <div>
       <h4>Shop Address</h4>
       <p>4/244-D, NH-7, Naduvapatti Bus Stop,<br>Etturvattam Bus Stop,<br>Sattur - 626 203, Near Sivakasi.</p>
@@ -184,11 +81,10 @@
       <a href="safety.html">Safety</a>
     </div>
   </div>
-  <div class="container footer-legal"><strong>Legal Notice:</strong> This website is for product information, price-list viewing and enquiry preparation only. Final availability, permitted products, payment method and pickup/delivery arrangements are confirmed offline through authorised communication.</div>
+  <div class="container footer-legal"><strong>Legal Notice:</strong> This website is for product information, price-list viewing and enquiry submission only. Final confirmation is handled offline through authorised communication.</div>
   <div class="footer-bottom"><div class="container footer-bottom-inner"><span>© 2026 Selva Crackers. All Rights Reserved.</span><span>Sattur • Near Sivakasi</span></div></div>
 </footer>
-
-      <script src="js/products.js?v=20260924-4"></script>
-      <script src="js/app.js?v=20260924-4"></script>
-    </body>
-    </html>
+<script src="js/products.js?v=20260924-6"></script>
+<script src="js/app.js?v=20260924-6"></script>
+</body>
+</html>
