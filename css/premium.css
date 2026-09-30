@@ -640,3 +640,32 @@ small{font-size:.82rem;line-height:1.45}
   .mobile-cart-bar #mobileViewEstimateBtn{font-size:.78rem!important}
   .modal-actions .btn{font-size:.82rem!important}
 }
+
+/* --- Accessibility contrast fix: official payment safety notice --- */
+.warning-card{
+  color:#2f2521;
+  background:linear-gradient(135deg,#fff7e0,#fffdf9);
+  border-color:#d6ad3a;
+}
+.warning-card small{
+  color:#8a5a00;
+  font-size:.82rem;
+  font-weight:900;
+}
+.warning-card h3{
+  color:#6b0b10;
+  font-weight:850;
+}
+.warning-card p{
+  color:#4a3a2a;
+  font-size:1rem;
+  line-height:1.72;
+}
+.warning-card a{
+  color:#7a4a00;
+  font-weight:900;
+}
+.warning-card a:hover{
+  color:#5e090d;
+  text-decoration:underline;
+}
