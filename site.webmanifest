@@ -1,0 +1,18 @@
+{
+  "name": "Selva Crackers",
+  "short_name": "Selva Crackers",
+  "description": "Official Selva Crackers 2026 price list and enquiry website.",
+  "start_url": "/selva-fancy-crackers/",
+  "scope": "/selva-fancy-crackers/",
+  "display": "standalone",
+  "background_color": "#fffaf1",
+  "theme_color": "#52080d",
+  "icons": [
+    {
+      "src": "images/favicon.png",
+      "sizes": "128x128",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
