@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://arupra6.github.io/selva-fancy-crackers/sitemap.xml
+Sitemap: https://selvafancycrackers.in/sitemap.xml
