@@ -27,7 +27,9 @@ const categoryOrder = [
   "Multi Shot",
   "New Version",
   "Fancy Multi Shots",
-  "Gift Box"
+  "Gift Box",
+  "Chain Crackers",
+  "Paper Bombs"
 ];
 
 const products = [
@@ -219,7 +221,17 @@ const products = [
   { id: 186, name: "Paradise 45 ITEMS", tamilName: "பாரடைஸ்", category: "Gift Box", price: 850, unit: "Box", netRate: true, available: true },
   { id: 187, name: "Wonderful 50 ITEMS", tamilName: "வொண்டர்புல்", category: "Gift Box", price: 1050, unit: "Box", netRate: true, available: true },
   { id: 188, name: "Carnival 55 ITEMS", tamilName: "கார்னிவல்", category: "Gift Box", price: 1250, unit: "Box", netRate: true, available: true },
-  { id: 189, name: "VIP Champion 60 ITEMS", tamilName: "விஐபி சேம்பியன்", category: "Gift Box", price: 1500, unit: "Box", netRate: true, available: true }
+  { id: 189, name: "VIP Champion 60 ITEMS", tamilName: "விஐபி சேம்பியன்", category: "Gift Box", price: 1500, unit: "Box", netRate: true, available: true },
+  { id: 190, name: "100 Wala", tamilName: "100 வாலா", category: "Chain Crackers", price: 50, unit: "Pkt", netRate: true, available: true },
+  { id: 191, name: "200 Wala", tamilName: "200 வாலா", category: "Chain Crackers", price: 100, unit: "Pkt", netRate: true, available: true },
+  { id: 192, name: "1K Wala (Half Count)", tamilName: "1K வாலா (ஹாஃப் கவுண்ட்)", category: "Chain Crackers", price: 200, unit: "Pkt", netRate: true, available: true },
+  { id: 193, name: "1K Wala (Full Count)", tamilName: "1K வாலா (ஃபுல் கவுண்ட்)", category: "Chain Crackers", price: 350, unit: "Pkt", netRate: true, available: true },
+  { id: 194, name: "2K Wala (Full Count)", tamilName: "2K வாலா (ஃபுல் கவுண்ட்)", category: "Chain Crackers", price: 700, unit: "Pkt", netRate: true, available: true },
+  { id: 195, name: "5K Wala (Full Count)", tamilName: "5K வாலா (ஃபுல் கவுண்ட்)", category: "Chain Crackers", price: 1750, unit: "Pkt", netRate: true, available: true },
+  { id: 196, name: "10K Wala (Full Count)", tamilName: "10K வாலா (ஃபுல் கவுண்ட்)", category: "Chain Crackers", price: 3500, unit: "Pkt", netRate: true, available: true },
+  { id: 197, name: "250g Paper Bomb", tamilName: "250g பேப்பர் பாம்", category: "Paper Bombs", price: 60, unit: "Pkt", netRate: true, available: true },
+  { id: 198, name: "500g Paper Bomb", tamilName: "500g பேப்பர் பாம்", category: "Paper Bombs", price: 110, unit: "Pkt", netRate: true, available: true },
+  { id: 199, name: "1kg Paper Bomb", tamilName: "1kg பேப்பர் பாம்", category: "Paper Bombs", price: 200, unit: "Pkt", netRate: true, available: true }
 ];
 
 
