@@ -436,6 +436,27 @@
   ],
   "189": [
     "images/products/189-01.webp"
+  ],
+  "190": [
+    "images/products/chain-crackers-wala.webp"
+  ],
+  "191": [
+    "images/products/chain-crackers-wala.webp"
+  ],
+  "192": [
+    "images/products/chain-crackers-wala.webp"
+  ],
+  "193": [
+    "images/products/chain-crackers-wala.webp"
+  ],
+  "194": [
+    "images/products/chain-crackers-wala.webp"
+  ],
+  "195": [
+    "images/products/chain-crackers-wala.webp"
+  ],
+  "196": [
+    "images/products/chain-crackers-wala.webp"
   ]
 };
   const PLACEHOLDER = 'images/product-placeholder.webp';
